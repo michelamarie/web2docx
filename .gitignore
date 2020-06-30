@@ -1,3 +1,5 @@
 *.html
 *.docx
 *test*
+*.log
+*.txt
