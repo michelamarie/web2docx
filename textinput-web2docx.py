@@ -6,7 +6,6 @@ from selenium.webdriver.support import expected_conditions as ec
 import time
 import os
 import pypandoc
-import sys,argparse,csv
 
 
 # Get authorisation credentials from user
@@ -42,27 +41,25 @@ browser.get('https://blogs.ubc.ca/ubcworkdayjobaids/archives/1409')
 
 time.sleep(4)
 
-with open ('links.csv') as csv_file:
-    url_list=csv.DictReader(csv_file,delimiter=',')
-    line_count=0
-    for line in url_list:
-        article_url=line['url']
-        article_title=line['title']
-        for x in article_url, article_title:
-            browser.get(article_url)
-            time.sleep(3)
-            ## Store the page title in a variable
-            #article_title = article_title
-            # Select the element by its HTML tag
-            contents = browser.find_element_by_tag_name('article')
-            # Set only the source code inside the 'article' tags in a variable
-            article_content = contents.get_attribute('innerHTML')
-            # Save selected source code in an HTML file
-            with open("./documents/"+ article_title +".html", "w") as f:
-                f.write(article_content)
-            # Convert saved HTML file to a separate docx file.
-            output = pypandoc.convert_file("./documents/"+ article_title +'.html', 'docx', outputfile = "./documents/"+ article_title +'.docx')
-            time.sleep(0)
+url_file = open("urls-all.txt", "r")
+url_list = url_file.readlines()
+
+for line in url_list:
+    # Fetch a page, then wait for it to load
+    browser.get(line)
+    time.sleep(2)
+    # Store the page title in a variable
+    article_title = browser.title
+    # Select the element by its HTML tag
+    contents = browser.find_element_by_tag_name('article')
+    # Set only the source code inside the 'article' tags in a variable
+    article_content = contents.get_attribute('innerHTML')
+    # Save selected source code in an HTML file
+    with open("./documents/"+ article_title +".html", "w") as f:
+        f.write(article_content)
+    # Convert saved HTML file to a separate docx file.
+    output = pypandoc.convert_file("./documents/"+ article_title +'.html', 'docx', outputfile = "./documents/"+ article_title +'.docx')
+    time.sleep(0)
 
 time.sleep(0)
 os.system('/bin/mv documents/*.html documents/temp/')
